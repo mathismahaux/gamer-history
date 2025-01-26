@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  ghDb:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ghDb
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=yourStrong(!)Password
+    ports:
+      - "1433:1433"
+    networks:
+      - gh-network
+    restart: always
+    
+  frontend:
+    build:
+      context: ./ti-gamerhistory-angular  
+      dockerfile: Dockerfile
+    container_name: ghAngular
+    ports:
+      - "8080:4200"
+    networks:
+      - gh-network
+
+  backend:
+    build: 
+      context: .
+      dockerfile: ti-gamerhistory-asp/Controller/Dockerfile
+    container_name: ghApi
+    ports:
+      - "5037:80"
+    depends_on:
+      - ghDb
+    networks:
+      - gh-network
+    environment:
+      - ConnectionStrings__db=Server=ghDb;Database=gamer_history_db;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=true
+    restart: always
+
+networks:
+  gh-network:
+    driver: bridge

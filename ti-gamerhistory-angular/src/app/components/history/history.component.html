@@ -1,0 +1,40 @@
+<div>
+  <h2>History</h2>
+  @if(loading) {
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p>Loading...</p>
+    </div>
+  }
+  @if(!loading) {
+    @for(group of groupedSessions; track $index) {
+      <h3>{{group.date}}:</h3>
+      <ul>
+        @for(gameSession of group.sessions; track $index) {
+          <li>
+            You played <a class="text-highlight">{{getGameNameById(gameSession.gameId)}}</a> for <a class="text-highlight">{{gameSession.gameTimeMin}}</a> minutes.
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>
+@if(!loading) {
+  <div class="dashboard">
+    <h3>Game Progress Dashboard</h3>
+    <ul>
+      @for (game of games; track $index) {
+        <li>
+          <p>{{ game.name }}</p>
+          <div class="progress-bar-container">
+            <div
+              class="progress-bar"
+              [style.width.%]="getGameProgressPercentage(game.id)"
+            ></div>
+          </div>
+          <span>Game completed at {{ getGameProgressPercentage(game.id) }}%.</span>
+        </li>
+      }
+    </ul>
+  </div>
+}
