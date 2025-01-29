@@ -1,5 +1,9 @@
 <div>
   <h2>List of Users</h2>
+  <div class="add-button-container">
+    <button (click)="toggleCreateForm()">Add Game</button>
+  </div>
+
   @if(loading) {
     <div class="spinner-container">
       <div class="spinner"></div>
@@ -28,7 +32,14 @@
       </tbody>
     </table>
   }
-
 </div>
 
-<app-user-create (createdUser)="onCreatedUser($event)"></app-user-create>
+@if(showCreateForm) {
+  <div class="modal">
+    <div class="modal-content">
+      <span class="close-button" (click)="toggleCreateForm()">&times;</span>
+      <app-user-create (createdUser)="onCreatedUser($event)"></app-user-create>
+
+    </div>
+  </div>
+}

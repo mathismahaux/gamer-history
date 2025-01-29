@@ -27,7 +27,7 @@ export class VideogameListComponent implements OnInit {
   loading = true;
 
   selectedSupport: number | null = null;
-  showCreateForm: boolean = false; // Controls the visibility of the modal
+  showCreateForm: boolean = false;
 
   constructor(
     private videogameService: VideogameService,
@@ -70,7 +70,7 @@ export class VideogameListComponent implements OnInit {
 
   onCreatedGame(newGame: Game): void {
     this.games = [...this.games, newGame];
-    this.toggleCreateForm(); // Close the modal after creating a game
+    this.toggleCreateForm();
   }
 
   get filteredGames(): Game[] {
