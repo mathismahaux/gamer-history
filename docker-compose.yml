@@ -29,7 +29,7 @@ services:
       dockerfile: ti-gamerhistory-asp/Controller/Dockerfile
     container_name: ghApi
     ports:
-      - "5037:80"
+      - "5037:5037"
     depends_on:
       - ghDb
     networks:

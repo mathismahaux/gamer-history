@@ -116,4 +116,6 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
+app.Urls.Add("http://*:5037");
+
 app.Run();

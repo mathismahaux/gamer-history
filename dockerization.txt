@@ -1,0 +1,168 @@
+1. Créer 2 Dockerfiles:
+
+- Backend:
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+WORKDIR /app
+EXPOSE 5037
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+
+COPY ["[nom_dossier_racine_backend]/Controller/Controller.csproj", "Controller/"]
+RUN dotnet restore "Controller/Controller.csproj"
+
+COPY [nom_dossier_racine_backend]/ ./[nom_dossier_racine_backend]/
+
+WORKDIR "/src/[nom_dossier_racine_backend]/Controller"
+RUN dotnet build "Controller.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "Controller.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "Controller.dll"]
+
+- Frontend:
+
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 4200
+CMD ["npm", "run", "start", "--", "--host", "0.0.0.0", "--port", "4200"]
+
+2. docker-compose:
+
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=yourStrong(!)Password
+    ports:
+      - "1433:1433"
+    networks:
+      - network
+    restart: always
+    
+  frontend:
+    build:
+      context: ./[nom_dossier_racine_frontend]  
+      dockerfile: Dockerfile
+    container_name: angular
+    ports:
+      - "8080:4200"
+    networks:
+      - network
+
+  backend:
+    build: 
+      context: .
+      dockerfile: [nom_dossier_racine_backend]/Controller/Dockerfile
+    container_name: api
+    ports:
+      - "5037:5037"
+    depends_on:
+      - db
+    networks:
+      - network
+    environment:
+      - ConnectionStrings__db=Server=db;Database=db_nae;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=true
+    restart: always
+
+networks:
+  network:
+    driver: bridge
+
+3. Modifier backend:
+
+- appsttings.json/appsettings.development.json:
+
+{
+  "Jwt": {
+    "Key": "T7TIQ0b1A6Nk9g4hGSUnQs3C0rLRlBao",
+    "Issuer": "http://localhost:5037",
+    "Audience": "http://localhost:5037",
+    "ExpirationMinutes": 3000
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "ConnectionStrings": {
+    "db": "Server=ghDb,1433;Database=gamer_history_db;User Id=SA;Password=yourStrong(!)Password;TrustServerCertificate=true"
+  }
+}
+
+- Program.cs:
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["jwt_token"];
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+[...]
+
+var corsPolicyName = "AllowSpecificOrigin";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: corsPolicyName, policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "http://localhost:8080")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+[...]
+
+app.UseCors(corsPolicyName);
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.UseHttpsRedirection();
+
+app.MapControllers();
+
+app.Urls.Add("http://*:5037");
+
+app.Run();
+
+
