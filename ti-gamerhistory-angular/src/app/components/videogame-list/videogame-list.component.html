@@ -1,7 +1,8 @@
 <div>
   <h2>List of Games</h2>
-
-  <button (click)="toggleCreateForm()">Add Game</button>
+  <div class="add-button-container">
+    <button (click)="toggleCreateForm()">Add Game</button>
+  </div>
 
   <div class="support-filter">
     <label for="support">Support: </label>
@@ -23,26 +24,28 @@
   }
 
   @if (!loading) {
-    <table>
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Time to complete</th>
-        <th>Support</th>
-      </tr>
-      </thead>
-      <tbody>
-        @for (game of filteredGames; track $index; let e = $even; let o = $odd) {
-          <tr [ngClass]="{'even': e, 'odd': o}">
-            <td>{{game.id}}</td>
-            <td>{{game.name}}</td>
-            <td>{{game.minutesForCompletion}}</td>
-            <td>{{getSupportNameById(game.supportId)}}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Time to complete</th>
+          <th>Support</th>
+        </tr>
+        </thead>
+        <tbody>
+          @for (game of filteredGames; track $index; let e = $even; let o = $odd) {
+            <tr [ngClass]="{'even': e, 'odd': o}">
+              <td>{{game.id}}</td>
+              <td>{{game.name}}</td>
+              <td>{{game.minutesForCompletion}}</td>
+              <td>{{getSupportNameById(game.supportId)}}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
   }
 </div>
 

@@ -1,5 +1,5 @@
 .table-container {
-  max-height: 400px;
+  max-height: 150px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -136,13 +136,18 @@ select {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #323232;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 400px;
   max-width: 90%;
   position: relative;
+}
+
+.add-button-container {
+  display: flex;
+  justify-content: center;
 }
 
 .close-button {
@@ -153,4 +158,23 @@ select {
   cursor: pointer;
   color: #333;
 }
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #e11e52;
+  color: white;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #ff5084;
+}
+
+
 
