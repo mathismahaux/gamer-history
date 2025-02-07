@@ -119,5 +119,22 @@ table tbody tr:hover {
   right: 10px;
   font-size: 20px;
   cursor: pointer;
-  color: #333;
+  color: #ffffff;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #e11e52;
+  color: white;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #ff5084;
 }
